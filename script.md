@@ -1,0 +1,18 @@
+- inspiracion: que es wordle?
+  - Juego viral
+  - me lo enseño mi novia en twitter y mi compañera en word
+- idea: romperlo
+  - usare python
+- implementacion
+  - script para encontrar posibles soluciones
+  - script para encontrar palabras en que ninguna letra haya salido
+  - creacion de clase
+  - definicion de parametros
+  - añadir funciones anteriores como metodos
+  - elección de código de input
+  - añadir parseador de input
+  - game loop
+  - win condition
+  - assertions
+  - ampliacion a otros lenguajes
+  - ampliacion a n letras
