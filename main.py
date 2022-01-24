@@ -15,7 +15,7 @@ class WordleSolver:
     incorrect: str = ""
 
     def __init__(self, lang: str) -> None:
-        d = [x.replace("\n", "") for x in open(f"db/{lang}.dat", "r")]
+        d = [x.replace("\n", "") for x in open(f"languages/{lang}.dat", "r")]
         self.data = [x for x in d if len(x) == WORD_SIZE and "-" not in d]
         self.possible_answers = self.data
 
@@ -155,7 +155,7 @@ For example, 🟨🟩⬜⬜🟩 -> "yg--g"
 
     WORD_SIZE = args.W or args.words or 5
 
-    accepted_lang = [l.replace(".dat", "") for l in os.listdir("db")]
+    accepted_lang = [l.replace(".dat", "") for l in os.listdir("languages")]
     lang = input(f"Introduce language ({', '.join(accepted_lang)}): ").lower()
 
     assert lang in accepted_lang, f"Only {', '.join(accepted_lang)} es supported"
