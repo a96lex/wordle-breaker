@@ -100,15 +100,6 @@ introduce a random word containing none of the already guessed letters
         return words_with_unseen_letters
 
     def handle_input(self, pattern: str):
-        """
-        Parses user input resulting from entering the current selected word
-        Format:
-            - - for gray (no match)
-            - y for yellow (match, incorrect order)
-            - g for green (match, correct order)
-
-        Must be passed as a single string eg: "ygnng"
-        """
         for i in range(WORD_SIZE):
             state = pattern[i]
             letter = self.curr_choice[i]
