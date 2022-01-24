@@ -144,9 +144,11 @@ WORDLE BREAKER
 
 instructions: 
 1. Select language
-2. Introduce the shown word on wordle
-3. Write on the 
-terminal the results using the following format:
+2. Choose action
+    a. Introduce the shown word on wordle
+    b. Introduce "c", and then introduce your choosen word
+    c. Introduce "p" to see all possible answers, then go to 2
+3. Write on the terminal the results using the following format:
     - for gray (no match)
     y for yellow (match, incorrect order)
     g for green (match, correct order)
