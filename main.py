@@ -17,15 +17,15 @@ class WordleSolver:
 
     def __init__(self, lang: str) -> None:
         d = [x.replace("\n", "") for x in open(f"languages/{lang}.dat", "r")]
-        self.data = [x for x in d if len(x) == WORD_SIZE and "-" not in d]
-        self.possible_answers = self.data
+        self.all_words_list = [x for x in d if len(x) == WORD_SIZE and "-" not in d]
+        self.possible_answers = self.all_words_list
 
     def get_next_input(self):
         if self.turn == 1:
             print(
-                f"There are {len(self.data)} words. introduce this randomly selected one:"
+                f"There are {len(self.all_words_list)} words. introduce this randomly selected one:"
             )
-            self.curr_choice = random.choice(self.data)
+            self.curr_choice = random.choice(self.all_words_list)
 
         else:
             potential_next_answer = self.get_final_answers()
@@ -54,7 +54,7 @@ introduce a random word containing none of the already guessed letters"""
 
     def get_final_answers(self):
         potential_next_answer = []
-        for d in self.data:
+        for d in self.all_words_list:
             maybe = True
             for k, v in self.correct_with_position.items():
                 if not d[k] == v:
@@ -81,7 +81,7 @@ introduce a random word containing none of the already guessed letters"""
     def get_missing_letters(self):
 
         potential_next_answer = []
-        for d in self.data:
+        for d in self.all_words_list:
             maybe = True
             for c in self.present_but_incorrect_position:
                 if c in d:
