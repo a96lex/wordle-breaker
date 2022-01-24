@@ -10,9 +10,10 @@ class WordleSolver:
 
     turn: int = 1
 
-    correct_with_position: dict = {}
-    correct_without_position: str = ""
-    incorrect: str = ""
+    correct_with_position: dict = {}  # green
+    correct_without_position: str = ""  # yellow
+    incorrect_with_position: dict = {}  # yellow
+    incorrect: str = ""  # gray
 
     def __init__(self, lang: str) -> None:
         d = [x.replace("\n", "") for x in open(f"languages/{lang}.dat", "r")]
@@ -58,9 +59,16 @@ introduce a random word containing none of the already guessed letters"""
             for k, v in self.correct_with_position.items():
                 if not d[k] == v:
                     maybe = False
+
+            for k, v in self.incorrect_with_position.items():
+                for l in v:
+                    if d[k] == l:
+                        maybe = False
+
             for c in self.correct_without_position:
                 if not c in d:
                     maybe = False
+
             for c in self.incorrect:
                 if c in d:
                     maybe = False
@@ -114,6 +122,10 @@ introduce a random word containing none of the already guessed letters"""
             if state == "y":
                 if letter not in self.correct_without_position:
                     self.correct_without_position += letter
+                if not self.incorrect_with_position.get(i):
+                    self.incorrect_with_position[i] = ""
+                if letter not in self.incorrect_with_position[i]:
+                    self.incorrect_with_position[i] += letter
 
         for i in range(WORD_SIZE):
             state = pattern[i]
