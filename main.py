@@ -11,9 +11,9 @@ class WordleSolver:
     turn: int = 1
 
     correct_with_position: dict = {}  # green
-    correct_without_position: str = ""  # yellow
-    incorrect_with_position: dict = {}  # yellow
-    incorrect: str = ""  # gray
+    present_but_incorrect_position: str = ""  # yellow
+    present_but_incorrect_position_dict: dict = {}  # yellow
+    not_present: str = ""  # gray
 
     def __init__(self, lang: str) -> None:
         d = [x.replace("\n", "") for x in open(f"languages/{lang}.dat", "r")]
@@ -28,23 +28,23 @@ class WordleSolver:
             self.curr_choice = random.choice(self.data)
 
         else:
-            maybe_are = self.get_final_answers()
-            self.possible_answers = maybe_are
-            if len(maybe_are) == 1:
-                print(f'Answer found! introduce "{maybe_are[0]}" to win')
+            potential_next_answer = self.get_final_answers()
+            self.possible_answers = potential_next_answer
+            if len(potential_next_answer) == 1:
+                print(f'Answer found! introduce "{potential_next_answer[0]}" to win')
                 exit()
-            print(f"\nThere are {len(maybe_are)} potential answers")
-            if len(maybe_are) > MAX_TURNS - self.turn:
+            print(f"\nThere are {len(potential_next_answer)} potential answers")
+            if len(potential_next_answer) > MAX_TURNS - self.turn:
                 choose_another = self.get_missing_letters()
                 if len(choose_another) > 0:
-                    maybe_are = choose_another
+                    potential_next_answer = choose_another
                 else:
                     print(
                         """
 since there are more potential answers than turns remaining,
 introduce a random word containing none of the already guessed letters"""
                     )
-            self.curr_choice = random.choice(maybe_are)
+            self.curr_choice = random.choice(potential_next_answer)
             print("introduce this randomly selected word from the list")
 
         self.turn += 1
@@ -53,41 +53,41 @@ introduce a random word containing none of the already guessed letters"""
         return self.curr_choice
 
     def get_final_answers(self):
-        maybe_are = []
+        potential_next_answer = []
         for d in self.data:
             maybe = True
             for k, v in self.correct_with_position.items():
                 if not d[k] == v:
                     maybe = False
 
-            for k, v in self.incorrect_with_position.items():
+            for k, v in self.present_but_incorrect_position_dict.items():
                 for l in v:
                     if d[k] == l:
                         maybe = False
 
-            for c in self.correct_without_position:
+            for c in self.present_but_incorrect_position:
                 if not c in d:
                     maybe = False
 
-            for c in self.incorrect:
+            for c in self.not_present:
                 if c in d:
                     maybe = False
 
             if maybe:
-                maybe_are.append(d)
+                potential_next_answer.append(d)
 
-        return maybe_are
+        return potential_next_answer
 
     def get_missing_letters(self):
 
-        maybe_are = []
+        potential_next_answer = []
         for d in self.data:
             maybe = True
-            for c in self.correct_without_position:
+            for c in self.present_but_incorrect_position:
                 if c in d:
                     maybe = False
 
-            for c in self.incorrect:
+            for c in self.not_present:
                 if c in d:
                     maybe = False
 
@@ -96,9 +96,9 @@ introduce a random word containing none of the already guessed letters"""
                     maybe = False
 
             if maybe:
-                maybe_are.append(d)
+                potential_next_answer.append(d)
 
-        return maybe_are
+        return potential_next_answer
 
     def handle_input(self, pattern: str):
         """
@@ -120,23 +120,23 @@ introduce a random word containing none of the already guessed letters"""
             state = pattern[i]
             letter = self.curr_choice[i]
             if state == "y":
-                if letter not in self.correct_without_position:
-                    self.correct_without_position += letter
-                if not self.incorrect_with_position.get(i):
-                    self.incorrect_with_position[i] = ""
-                if letter not in self.incorrect_with_position[i]:
-                    self.incorrect_with_position[i] += letter
+                if letter not in self.present_but_incorrect_position:
+                    self.present_but_incorrect_position += letter
+                if not self.present_but_incorrect_position_dict.get(i):
+                    self.present_but_incorrect_position_dict[i] = ""
+                if letter not in self.present_but_incorrect_position_dict[i]:
+                    self.present_but_incorrect_position_dict[i] += letter
 
         for i in range(WORD_SIZE):
             state = pattern[i]
             letter = self.curr_choice[i]
             if state == "-":
-                if letter not in self.incorrect:
+                if letter not in self.not_present:
                     if (
                         letter not in self.correct_with_position.values()
-                        and letter not in self.correct_without_position
+                        and letter not in self.present_but_incorrect_position
                     ):
-                        self.incorrect += letter
+                        self.not_present += letter
 
 
 if __name__ == "__main__":
