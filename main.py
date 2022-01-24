@@ -182,14 +182,11 @@ Your input:
                 if pattern == "c":
                     while True:
                         try:
-                            word = input("Introduce the chosen word:")
-                            assert type(pattern) == str, "Pattern must be a string"
+                            word = input("Introduce the chosen word: ")
+                            assert type(word) == str, "Word must be a string"
                             assert (
-                                len(pattern) == WORD_SIZE
-                            ), f"Pattern should be {WORD_SIZE} characters long"
-                            assert set(pattern) <= set(
-                                "-yg"
-                            ), "Patten must be composed of -, y and g"
+                                len(word) == WORD_SIZE
+                            ), f"word should be {WORD_SIZE} characters long"
                             game.curr_choice = word
                             break
                         except AssertionError as e:
