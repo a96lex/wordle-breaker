@@ -6,6 +6,7 @@ MAX_TURNS = 6
 
 class WordleSolver:
     data: list
+    possible_answers: list
 
     turn: int = 1
 
@@ -15,7 +16,8 @@ class WordleSolver:
 
     def __init__(self, lang: str) -> None:
         d = [x.replace("\n", "") for x in open(f"db/{lang}.dat", "r")]
-        self.data = [x for x in d if len(x) == WORD_SIZE]
+        self.data = [x for x in d if len(x) == WORD_SIZE and "-" not in d]
+        self.possible_answers = self.data
 
     def get_next_input(self):
         if self.turn == 1:
@@ -26,6 +28,7 @@ class WordleSolver:
 
         else:
             maybe_are = self.get_final_answers()
+            self.possible_answers = maybe_are
             if len(maybe_are) == 1:
                 print(f'Answer found! introduce "{maybe_are[0]}" to win')
                 exit()
@@ -93,7 +96,7 @@ introduce a random word containing none of the already guessed letters"""
         """
         Parses user input resulting from entering the current selected word
         Format:
-            - n for gray (no match)
+            - - for gray (no match)
             - y for yellow (match, incorrect order)
             - g for green (match, correct order)
 
@@ -115,7 +118,7 @@ introduce a random word containing none of the already guessed letters"""
         for i in range(WORD_SIZE):
             state = pattern[i]
             letter = self.curr_choice[i]
-            if state == "n":
+            if state == "-":
                 if letter not in self.incorrect:
                     if (
                         letter not in self.correct_with_position.values()
@@ -130,12 +133,30 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-W", default=5, required=False, type=int)
+    parser.add_argument("--words", default=5, required=False, type=int)
     args = parser.parse_args()
 
-    WORD_SIZE = args.W or 5
+    print(
+        """
+WORDLE BREAKER
+
+instructions: 
+1. Select language
+2. Introduce the shown word on wordle
+3. Write on the 
+terminal the results using the following format:
+    - for gray (no match)
+    y for yellow (match, incorrect order)
+    g for green (match, correct order)
+
+For example, 🟨🟩⬜⬜🟩 -> "yg--g"
+"""
+    )
+
+    WORD_SIZE = args.W or args.words or 5
 
     accepted_lang = [l.replace(".dat", "") for l in os.listdir("db")]
-    lang = input(f"Introduce language {accepted_lang = }: ").lower()
+    lang = input(f"Introduce language ({', '.join(accepted_lang)}): ").lower()
 
     assert lang in accepted_lang, f"Only {', '.join(accepted_lang)} es supported"
     game = WordleSolver(lang)
@@ -144,15 +165,20 @@ if __name__ == "__main__":
         game.get_next_input()
         while True:
             try:
-                pattern = input("Introduce pattern: ")
+                pattern = input(
+                    "Introduce pattern (or press p to see all possible answers): "
+                )
+                if pattern == "p":
+                    print(game.possible_answers)
+                    continue
 
-                assert type(pattern) == str, "Patter must be a string"
+                assert type(pattern) == str, "Pattern must be a string"
                 assert (
                     len(pattern) == WORD_SIZE
                 ), f"Pattern should be {WORD_SIZE} characters long"
                 assert set(pattern) <= set(
-                    "nyg"
-                ), "Patten must be composed of n, y and g"
+                    "-yg"
+                ), "Patten must be composed of -, y and g"
                 break
             except AssertionError as e:
                 print(e)
