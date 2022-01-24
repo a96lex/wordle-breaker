@@ -166,11 +166,35 @@ For example, 🟨🟩⬜⬜🟩 -> "yg--g"
         while True:
             try:
                 pattern = input(
-                    "Introduce pattern (or press p to see all possible answers): "
+                    """
+Introduce pattern or:
+    - introduce p to see all possible answers
+    - introduce c to choose your own word): 
+
+Your input:
+    """
                 )
                 if pattern == "p":
                     print(game.possible_answers)
+                    print(f"\nRecommended next guess:\t{game.curr_choice}")
                     continue
+
+                if pattern == "c":
+                    while True:
+                        try:
+                            word = input("Introduce the chosen word:")
+                            assert type(pattern) == str, "Pattern must be a string"
+                            assert (
+                                len(pattern) == WORD_SIZE
+                            ), f"Pattern should be {WORD_SIZE} characters long"
+                            assert set(pattern) <= set(
+                                "-yg"
+                            ), "Patten must be composed of -, y and g"
+                            game.curr_choice = word
+                            break
+                        except AssertionError as e:
+                            print(e)
+                            continue
 
                 assert type(pattern) == str, "Pattern must be a string"
                 assert (
