@@ -15,8 +15,11 @@ class WordleSolver:
     present_but_incorrect_position_dict: dict = {}  # yellow
     not_present: str = ""  # gray
 
+    hard_mode: bool = False
+
     def __init__(self, lang: str) -> None:
-        d = [x.replace("\n", "") for x in open(f"languages/{lang}.dat", "r")]
+        self.lang = lang
+        d = [x.replace("\n", "") for x in open(f"languages/{self.lang}.dat", "r")]
         self.all_words_list = [x for x in d if len(x) == WORD_SIZE and "-" not in d]
         self.possible_answers = self.all_words_list
 
@@ -34,7 +37,10 @@ class WordleSolver:
                 print(f'Answer found! introduce "{potential_next_answers[0]}" to win')
                 exit()
             print(f"\nThere are {len(potential_next_answers)} potential answers")
-            if len(potential_next_answers) > MAX_TURNS - self.turn:
+            if (
+                len(potential_next_answers) > MAX_TURNS - self.turn
+                and not self.hard_mode
+            ):
                 choose_another = self.get_missing_letters()
                 if len(choose_another) > 0:
                     potential_next_answers = choose_another
@@ -112,8 +118,10 @@ introduce a random word containing none of the already guessed letters
             if state == "y":
                 if letter not in self.present_but_incorrect_position:
                     self.present_but_incorrect_position += letter
+
                 if not self.present_but_incorrect_position_dict.get(i):
                     self.present_but_incorrect_position_dict[i] = ""
+
                 if letter not in self.present_but_incorrect_position_dict[i]:
                     self.present_but_incorrect_position_dict[i] += letter
 
@@ -128,6 +136,14 @@ introduce a random word containing none of the already guessed letters
                     ):
                         self.not_present += letter
 
+    def reset(self):
+        self.turn = 1
+        self.correct_with_position = {}
+        self.present_but_incorrect_position = ""
+        self.present_but_incorrect_position_dict = {}
+        self.not_present = ""
+        self.__init__(self.lang)
+
 
 if __name__ == "__main__":
     import os
@@ -136,6 +152,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-W", default=5, required=False, type=int)
     parser.add_argument("--words", default=5, required=False, type=int)
+    parser.add_argument("-H", default=False, required=False, type=bool)
+    parser.add_argument("--hard-mode", default=False, required=False, type=bool)
     args = parser.parse_args()
 
     print(
@@ -148,6 +166,7 @@ instructions:
     a. Introduce the shown word on wordle
     b. Introduce "c", and then introduce your choosen word
     c. Introduce "p" to see all possible answers, then go to 2
+    d. introduce "r" to restart
 3. Write on the terminal the results using the following format:
     - for gray (no match)
     y for yellow (match, incorrect order)
@@ -165,6 +184,9 @@ For example, 🟨🟩⬜⬜🟩 -> "yg--g"
     assert lang in accepted_lang, f"Only {', '.join(accepted_lang)} es supported"
     game = WordleSolver(lang)
 
+    if args.H or args.hard_mode:
+        game.hard_mode = True
+
     while True:
         game.get_next_input()
         while True:
@@ -181,6 +203,11 @@ Your input:
                 if pattern == "p":
                     print(game.possible_answers)
                     print(f"\nRecommended next guess:\t{game.curr_choice}")
+                    continue
+
+                if pattern == "r":
+                    game.reset()
+                    game.get_next_input()
                     continue
 
                 if pattern == "c":
